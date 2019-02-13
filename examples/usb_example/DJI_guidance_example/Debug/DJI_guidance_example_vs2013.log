@@ -1,0 +1,10 @@
+﻿cl : Command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  main.cpp
+c:\users\chris\desktop\jhu\sophomore year\lindt\guidance-sdk\examples\usb_example\dji_guidance_example\dji_guidance.h(184): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\chris\desktop\jhu\sophomore year\lindt\guidance-sdk\examples\usb_example\dji_guidance_example\main.cpp(51): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+c:\users\chris\desktop\jhu\sophomore year\lindt\guidance-sdk\examples\usb_example\dji_guidance_example\main.cpp(245): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+  DJI_utility.cpp
+  Generating Code...
+DJI_utility.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  DJI_guidance_example_vs2013.vcxproj -> C:\Users\chris\Desktop\JHU\Sophomore Year\LINDT\Guidance-SDK\examples\usb_example\Debug\DJI_guidance_example.exe

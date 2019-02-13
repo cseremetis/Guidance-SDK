@@ -1,0 +1,10 @@
+﻿  Building Custom Rule C:/Users/chris/Desktop/JHU/Sophomore Year/LINDT/Guidance-SDK/examples/usb_example/DJI_guidance_example/CMakeLists.txt
+  CMake does not need to re-run because C:/Users/chris/Desktop/JHU/Sophomore Year/LINDT/Guidance-SDK/examples/usb_example/DJI_guidance_example/build/CMakeFiles/generate.stamp is up-to-date.
+  main.cpp
+c:\users\chris\desktop\jhu\sophomore year\lindt\guidance-sdk\examples\usb_example\dji_guidance_example\DJI_guidance.h(184): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\chris\Desktop\JHU\Sophomore Year\LINDT\Guidance-SDK\examples\usb_example\DJI_guidance_example\main.cpp(51): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\ucrt\string.h(133): note: see declaration of 'strcpy'
+C:\Users\chris\Desktop\JHU\Sophomore Year\LINDT\Guidance-SDK\examples\usb_example\DJI_guidance_example\main.cpp(245): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+  DJI_utility.cpp
+  Generating Code...
+  dji_guidance_usb.vcxproj -> C:\Users\chris\Desktop\JHU\Sophomore Year\LINDT\Guidance-SDK\examples\usb_example\DJI_guidance_example\build\Debug\dji_guidance_usb.exe

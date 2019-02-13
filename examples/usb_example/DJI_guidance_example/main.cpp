@@ -8,7 +8,7 @@
 using namespace std;
 
 #ifdef HAVE_OPENCV
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
 #endif
 
 
