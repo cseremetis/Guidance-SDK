@@ -1,8 +1,8 @@
 /**
-	* Christian Seremetis
-	* 14 February 2019
-	* DJI Guidance API simple position test
-	*/
+  * Christian Seremetis
+  * 14 February 2019
+  * DJI Guidance API simple position test
+  */
 
 
 /*****************************************************
@@ -35,6 +35,12 @@ typedef struct Position {
 	float z;
 } _Position;
 
+typedef struct Velocity {
+	float x;
+	float y;
+	float z;
+} _Velocity;
+
 ostream& operator<<(ostream& o, Position p) {
 	stringstream ss;
 	ss << p.x << " ";
@@ -45,9 +51,11 @@ ostream& operator<<(ostream& o, Position p) {
 }
 
 /** Holds all the data we collect so we can use it. */
-vector<Position> data;
+vector<Position> pdata;
+vector<Velocity> vdata;
 
-static FILE* f = fopen("output.csv", "w");
+FILE* pf = fopen("position_output.csv", "w");
+FILE* vf = fopen("velocity_output.csv", "w");
 
 /** Callback optimized for velocity, ultrasonic, and motion data. */
 int _callback(int data_type, int data_len, char* content) {
@@ -55,14 +63,21 @@ int _callback(int data_type, int data_len, char* content) {
 	if (e_motion == data_type && NULL != content) {
 		motion *m = (motion*)content; //convert content to motion data
 		Position p;
+		Velocity v;
 
 		p.x = m->position_in_global_x;
 		p.y = m->position_in_global_y;
 		p.z = m->position_in_global_z;
-		data.push_back(p);
+		pdata.push_back(p);
 
-		fprintf(f, "%f, %f, %f\n", m->position_in_global_x, m->position_in_global_y, m->position_in_global_z);
+		v.x = m->velocity_in_global_x;
+		v.y = m->velocity_in_global_y;
+		v.z = m->velocity_in_global_z;
+		vdata.push_back(v);
+		
+		fprintf(pf, "%f, %f, %f\n", m->position_in_global_x, m->position_in_global_y, m->position_in_global_z);
 
+		fprintf(vf, "%f, %f, %f\n", v.x, v.y, v.z);
 	}
 
 	return 0;
@@ -70,7 +85,8 @@ int _callback(int data_type, int data_len, char* content) {
 
 int main(int argc, char const *argv[])
 {
-	fprintf(f, "'X', 'Y', 'Z'\n");
+	fprintf(pf, "'X', 'Y', 'Z'\n");
+	fprintf(vf, "'X', 'Y', 'Z'\n");
 	reset_config(); //clear previous data subscriptions
 	cout << "configuring reader...." << endl;
 
@@ -86,20 +102,21 @@ int main(int argc, char const *argv[])
 	
 	cout << "beginning transfer...." << endl;
  	
-	string command;
-	for (int i = 0; i < 10000; i++) {
+	string command = " ";
+	while(cin>>command) {
 		err_code = start_transfer();
 		//We gather the data and parse it via the callback
 		err_code = stop_transfer();
-		sleep(500);
-
-		
-
+		sleep(2500);
+		if (command == "exit") {
+			break;
+		}
 		err_code = start_transfer();
 	}
 
 	err_code = release_transfer();
-	fclose(f);
+	fclose(pf);
+	fclose(vf);
 
 	string option;
 	
@@ -108,14 +125,14 @@ int main(int argc, char const *argv[])
 			int index = 0;
 			stringstream os;
 			cin >> index;
-			cout << data[index] << endl;
+			cout << pdata[index] << endl;
 		} else if (option == "vi") {
-			cout << data.size() << endl;
-			for (uint64_t i = 0; i < data.size(); i++) {
-				cout << data[i] << endl;
+			cout << pdata.size() << endl;
+			for (uint64_t i = 0; i < pdata.size(); i++) {
+				cout << pdata[i] << endl;
 			}
 		}
 	}
 
-	return 0;
-}
+		return 0;
+	}
