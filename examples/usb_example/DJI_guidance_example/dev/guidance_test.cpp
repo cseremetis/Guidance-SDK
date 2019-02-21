@@ -22,6 +22,7 @@
 #include <string>
 #include <sstream>
 #include <unistd.h> //for time functions
+#include <thread>
 
 using namespace std;
 
@@ -54,6 +55,10 @@ ostream& operator<<(ostream& o, Position p) {
 vector<Position> pdata;
 vector<Velocity> vdata;
 
+// Volatile counter to manage periodic printing of current position
+// When it reaches 10, reset and print coordinates from thread started in callback function
+volatile uint8_t printCounter;
+
 FILE* pf = fopen("position_output.csv", "w");
 FILE* vf = fopen("velocity_output.csv", "w");
 
@@ -75,6 +80,15 @@ int _callback(int data_type, int data_len, char* content) {
 		v.z = m->velocity_in_global_z;
 		vdata.push_back(v);
 		
+		// Print coordinates every 10 samples
+		if (printCounter < 9) {
+			printCounter++;
+		}
+		else {
+			printCounter = 0;
+			thread printThread(printCoordinates, p);
+		}
+		
 		fprintf(pf, "%f, %f, %f\n", m->position_in_global_x, m->position_in_global_y, m->position_in_global_z);
 
 		fprintf(vf, "%f, %f, %f\n", v.x, v.y, v.z);
@@ -83,8 +97,16 @@ int _callback(int data_type, int data_len, char* content) {
 	return 0;
 }
 
+// Threading function for printing coordinates to cout
+void printCoordinates(Position p)
+{
+	cout << p << endl;
+}
+
+
 int main(int argc, char const *argv[])
 {
+	printCounter = 0;
 	fprintf(pf, "'X', 'Y', 'Z'\n");
 	fprintf(vf, "'X', 'Y', 'Z'\n");
 	reset_config(); //clear previous data subscriptions
