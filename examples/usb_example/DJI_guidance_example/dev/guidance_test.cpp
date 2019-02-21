@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
 	err_code = start_transfer();
 
 	while (cin >> command) {
-		if (command == "s")	
+		if (command == "s") {	
 			err_code = stop_transfer();
 			cout << "Stopped Transfer" << endl;
 			break;
