@@ -58,6 +58,8 @@ vector<Velocity> vdata;
 // Volatile counter to manage periodic printing of current position
 // When it reaches 10, reset and print coordinates from thread started in callback function
 volatile uint8_t printCounter;
+volatile bool printReady;
+volatile Position printData;
 
 FILE* pf = fopen("position_output.csv", "w");
 FILE* vf = fopen("velocity_output.csv", "w");
@@ -92,7 +94,8 @@ int _callback(int data_type, int data_len, char* content) {
 		}
 		else {
 			printCounter = 0;
-			thread printThread(printCoordinates, p);
+			printData = p;
+			printReady = true;
 		}
 		
 		fprintf(pf, "%f, %f, %f\n", m->position_in_global_x, m->position_in_global_y, m->position_in_global_z);
@@ -106,7 +109,7 @@ int _callback(int data_type, int data_len, char* content) {
 
 int main(int argc, char const *argv[])
 {
-	printCounter = 0;
+	printCounter = 10;
 	fprintf(pf, "'X', 'Y', 'Z'\n");
 	fprintf(vf, "'X', 'Y', 'Z'\n");
 	reset_config(); //clear previous data subscriptions
@@ -127,6 +130,9 @@ int main(int argc, char const *argv[])
 	err_code = start_transfer();
 
 	while (cin >> command) {
+		if (printReady) {
+			thread printThread(printCoordinates, printData);
+		}
 		if (command == "s") {	
 			err_code = stop_transfer();
 			cout << "Stopped Transfer" << endl;
