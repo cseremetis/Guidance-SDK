@@ -122,8 +122,17 @@ int main(int argc, char const *argv[])
 	//set _callback as the event handler for all Guidance events
 	err_code = set_sdk_event_handler(_callback);
 	
+	string command = " ";
 	cout << "beginning transfer...." << endl;
- 	
+	err_code = start_transfer();
+
+	while (cin >> command) {
+		if (command == "s") {
+			err_code = stop_transfer();
+			break;
+		}
+	}
+	/**
 	string command = " ";
 	while(cin>>command) {
 		err_code = start_transfer();
@@ -134,7 +143,7 @@ int main(int argc, char const *argv[])
 			break;
 		}
 		err_code = start_transfer();
-	}
+	}*/
 
 	err_code = release_transfer();
 	fclose(pf);
