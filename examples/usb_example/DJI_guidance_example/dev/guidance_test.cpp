@@ -62,6 +62,12 @@ volatile uint8_t printCounter;
 FILE* pf = fopen("position_output.csv", "w");
 FILE* vf = fopen("velocity_output.csv", "w");
 
+// Threading function for printing coordinates to cout
+void printCoordinates(Position p)
+{
+	cout << p << endl;
+}
+
 /** Callback optimized for velocity, ultrasonic, and motion data. */
 int _callback(int data_type, int data_len, char* content) {
 	//get position data if collected info is motion data
@@ -95,12 +101,6 @@ int _callback(int data_type, int data_len, char* content) {
 	}
 
 	return 0;
-}
-
-// Threading function for printing coordinates to cout
-void printCoordinates(Position p)
-{
-	cout << p << endl;
 }
 
 
