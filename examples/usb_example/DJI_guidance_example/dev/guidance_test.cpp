@@ -23,6 +23,7 @@
 #include <sstream>
 #include <unistd.h> //for time functions
 #include <thread>
+#include <signal.h>
 
 using namespace std;
 
@@ -58,16 +59,32 @@ vector<Velocity> vdata;
 // Volatile counter to manage periodic printing of current position
 // When it reaches 10, reset and print coordinates from thread started in callback function
 volatile uint8_t printCounter;
-volatile bool printReady;
+volatile int printReady;
 volatile Position printData;
+
+// For infinite while loop of data collection
+volatile sig_atomic_t continueLoop;
 
 FILE* pf = fopen("position_output.csv", "w");
 FILE* vf = fopen("velocity_output.csv", "w");
 
 // Threading function for printing coordinates to cout
-void printCoordinates(Position p)
+void printCoordinates(float x, float y, float z)
+{
+	cout << "x: " << x;
+	cout << "y: " << y;
+	cout << "z: " << z << endl;
+}
+
+void printCoordinates2(Position p)
 {
 	cout << p << endl;
+}
+
+// Signal handler for stopping infinite while loop
+void loopHandler(int signum)
+{
+	continueLoop = 0;
 }
 
 /** Callback optimized for velocity, ultrasonic, and motion data. */
@@ -81,21 +98,23 @@ int _callback(int data_type, int data_len, char* content) {
 		p.x = m->position_in_global_x;
 		p.y = m->position_in_global_y;
 		p.z = m->position_in_global_z;
-		pdata.push_back(p);
+		//pdata.push_back(p);
 
 		v.x = m->velocity_in_global_x;
 		v.y = m->velocity_in_global_y;
 		v.z = m->velocity_in_global_z;
-		vdata.push_back(v);
+		//vdata.push_back(v);
 		
 		// Print coordinates every 10 samples
-		if (printCounter < 9) {
+		if (printCounter < 200) {
 			printCounter++;
 		}
 		else {
 			printCounter = 0;
-			printData = p;
-			printReady = true;
+			printData.x = p.x;
+			printData.y = p.y;
+			printData.z = p.z;
+			printReady = 1;
 		}
 		
 		fprintf(pf, "%f, %f, %f\n", m->position_in_global_x, m->position_in_global_y, m->position_in_global_z);
@@ -109,7 +128,14 @@ int _callback(int data_type, int data_len, char* content) {
 
 int main(int argc, char const *argv[])
 {
-	printCounter = 10;
+	printCounter = 200;
+	printReady = 0;
+	continueLoop = 1;
+	
+	int tempval;
+	Position temppos;
+	thread* printThreadPtr;	
+
 	fprintf(pf, "'X', 'Y', 'Z'\n");
 	fprintf(vf, "'X', 'Y', 'Z'\n");
 	reset_config(); //clear previous data subscriptions
@@ -117,8 +143,9 @@ int main(int argc, char const *argv[])
 
 	//connect to Guidance, print if error
 	int err_code = init_transfer();
-
-	if (err_code) {
+	
+	cout << "error code: " << err_code << endl;
+	if (err_code == 0) {
 		cout << "Connected to Guidance" << endl;
 	}
 
@@ -128,17 +155,41 @@ int main(int argc, char const *argv[])
 	string command = " ";
 	cout << "beginning transfer...." << endl;
 	err_code = start_transfer();
+	cout << "Started transfer" << endl;
 
+	cout << "Ctrl-C to stop collecting data." << endl;
+	signal(SIGINT, loopHandler);
+	while (continueLoop == 1) {
+		temppos.x = printData.x;
+		temppos.y = printData.y;
+		temppos.z = printData.z;
+		if (printReady == 1) {
+			printThreadPtr = new thread(printCoordinates2, temppos);
+			printReady = 0;
+		}
+	}
+	signal(SIGINT, SIG_DFL); // Return Ctrl-C to default behavior
+	cout << "Data collection complete (Ctrl-C now quits program)." << endl;
+	/**
 	while (cin >> command) {
-		if (printReady) {
-			thread printThread(printCoordinates, printData);
+		tempval = printCounter;
+		temppos.x = printData.x;
+		temppos.y = printData.y;
+		temppos.z = printData.z;
+		cout << tempval << endl;
+		// cout << printCounter << endl;
+		if (printReady == 1) {
+			cout << "hello guy" << endl;
+			thread printThread(printCoordinates);
+			printReady = 0;
+			printThread.join();
 		}
 		if (command == "s") {	
 			err_code = stop_transfer();
 			cout << "Stopped Transfer" << endl;
 			break;
 		}
-	}
+	}*/
 	/**
 	string command = " ";
 	while(cin>>command) {
